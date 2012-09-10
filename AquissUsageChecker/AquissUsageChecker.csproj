@@ -12,50 +12,50 @@
     <AssemblyName>AquissUsageChecker</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IncludeMonoRuntime>false</IncludeMonoRuntime>
+    <IncludeMonoRuntime>False</IncludeMonoRuntime>
     <PlatformTarget>x86</PlatformTarget>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <ConsolePause>false</ConsolePause>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <CreatePackage>false</CreatePackage>
+    <EnablePackageSigning>False</EnablePackageSigning>
+    <ConsolePause>False</ConsolePause>
+    <EnableCodeSigning>False</EnableCodeSigning>
+    <CreatePackage>False</CreatePackage>
     <CodeSigningKey>Mac Developer</CodeSigningKey>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>True</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IncludeMonoRuntime>false</IncludeMonoRuntime>
+    <IncludeMonoRuntime>False</IncludeMonoRuntime>
     <LinkMode>Full</LinkMode>
     <PlatformTarget>x86</PlatformTarget>
-    <EnablePackageSigning>false</EnablePackageSigning>
-    <ConsolePause>false</ConsolePause>
-    <EnableCodeSigning>false</EnableCodeSigning>
-    <CreatePackage>false</CreatePackage>
+    <EnablePackageSigning>False</EnablePackageSigning>
+    <ConsolePause>False</ConsolePause>
+    <EnableCodeSigning>False</EnableCodeSigning>
+    <CreatePackage>False</CreatePackage>
     <CodeSigningKey>Mac Developer</CodeSigningKey>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|x86' ">
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>True</Optimize>
     <OutputPath>bin\x86\AppStore</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IncludeMonoRuntime>true</IncludeMonoRuntime>
+    <IncludeMonoRuntime>True</IncludeMonoRuntime>
     <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
     <PlatformTarget>x86</PlatformTarget>
     <LinkMode>Full</LinkMode>
-    <EnableCodeSigning>true</EnableCodeSigning>
-    <ConsolePause>false</ConsolePause>
-    <EnablePackageSigning>true</EnablePackageSigning>
-    <CreatePackage>true</CreatePackage>
+    <EnableCodeSigning>True</EnableCodeSigning>
+    <ConsolePause>False</ConsolePause>
+    <EnablePackageSigning>True</EnablePackageSigning>
+    <CreatePackage>True</CreatePackage>
     <CodeSigningKey>3rd Party Mac Developer Application</CodeSigningKey>
   </PropertyGroup>
   <ItemGroup>
@@ -87,11 +87,6 @@
     <Compile Include="Service\ReturnTypes\UsageReturnValue.cs" />
     <Compile Include="Service\AquissService.cs" />
     <Compile Include="UsageChecker.cs" />
-    <Compile Include="UsagePanel\UsagePanel.cs" />
-    <Compile Include="UsagePanel\UsagePanelController.cs" />
-    <Compile Include="UsagePanel\UsagePanel.designer.cs">
-      <DependentUpon>UsagePanel.cs</DependentUpon>
-    </Compile>
     <Compile Include="LoginPanel\LoginPanel.cs" />
     <Compile Include="LoginPanel\LoginPanelController.cs" />
     <Compile Include="LoginPanel\LoginPanel.designer.cs">
@@ -99,12 +94,17 @@
     </Compile>
     <Compile Include="Util\Auth.cs" />
     <Compile Include="Util\SettingsManager.cs" />
+    <Compile Include="UsagePanel\UsagePanel.cs" />
+    <Compile Include="UsagePanel\UsagePanelController.cs" />
+    <Compile Include="UsagePanel\UsagePanel.designer.cs">
+      <DependentUpon>UsagePanel.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainMenu.xib" />
     <InterfaceDefinition Include="StatusPanel\Panel.xib" />
-    <InterfaceDefinition Include="UsagePanel\UsagePanel.xib" />
     <InterfaceDefinition Include="LoginPanel\LoginPanel.xib" />
+    <InterfaceDefinition Include="UsagePanel\UsagePanel.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -116,8 +116,8 @@
     <Folder Include="Util\" />
     <Folder Include="Service\" />
     <Folder Include="Service\ReturnTypes\" />
-    <Folder Include="UsagePanel\" />
     <Folder Include="LoginPanel\" />
+    <Folder Include="UsagePanel\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Status.png" />
