@@ -12,7 +12,7 @@ namespace AquissUsageChecker.UsagePanel
 	partial class UsagePanelController
 	{
 		[Outlet]
-		MonoMac.AppKit.NSProgressIndicator ProgressIndicator { get; set; }
+		MonoMac.AppKit.NSProgressIndicator UsageIndicator { get; set; }
 
 		[Outlet]
 		MonoMac.AppKit.NSTextField PeakUsageLabel { get; set; }
@@ -40,9 +40,9 @@ namespace AquissUsageChecker.UsagePanel
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (ProgressIndicator != null) {
-				ProgressIndicator.Dispose ();
-				ProgressIndicator = null;
+			if (UsageIndicator != null) {
+				UsageIndicator.Dispose ();
+				UsageIndicator = null;
 			}
 
 			if (PeakUsageLabel != null) {

@@ -8,6 +8,7 @@ using AquissUsageChecker.StatusPanel;
 using AquissUsageChecker.UsagePanel;
 using AquissUsageChecker.LoginPanel;
 using AquissUsageChecker.Util;
+using System.Diagnostics;
 
 namespace AquissUsageChecker
 {
@@ -22,20 +23,13 @@ namespace AquissUsageChecker
 
         public override void AwakeFromNib()
         {
-            /*var username = SettingsManager.GetSetting(SettingsManager.KeyUsername);
+            var hashCode = SettingsManager.GetSetting(SettingsManager.KeyHashCode);
 
-            if (string.IsNullOrWhiteSpace(username))
+            if (string.IsNullOrWhiteSpace(hashCode))
             {
                 SetLoginPanel();
                 return;
             }
-
-            string password;
-            if (!Auth.GetPassword(username, out password))
-            {
-                SetLoginPanel();
-                return;
-            }*/
 
             SetStatusPanel();
         }
@@ -54,9 +48,16 @@ namespace AquissUsageChecker
         }
 
         private void SetStatusPanel()
-        {
-            if (_usageChecker == null)
-                _usageChecker = new UsageChecker();
+		{
+			var hashCode = SettingsManager.GetSetting(SettingsManager.KeyHashCode);
+
+			if (string.IsNullOrWhiteSpace(hashCode))
+				SetLoginPanel();
+
+			if (_usageChecker != null)
+				_usageChecker.Dispose();
+            
+			_usageChecker = new UsageChecker(hashCode);
 
             var panelController = new UsagePanelController();
 
@@ -64,7 +65,11 @@ namespace AquissUsageChecker
             panelController.QuitButtonClicked += (sender, e) => NSApplication.SharedApplication.Terminate(sender as UsagePanelController);
             panelController.LogoutButtonClicked += (sender, e) => Logout();
 
-            _usageChecker.UsageUpdated += (sender, e) => panelController.UpdateUsage(e.UsageInformation);
+            _usageChecker.UsageUpdated += (sender, e) =>
+            {
+                if (e.UsageInformation != null)
+                    panelController.UpdateUsage(e.UsageInformation);
+            };
 
             if (_statusPanelController != null)
                 _statusPanelController.PanelController = panelController;
@@ -74,12 +79,11 @@ namespace AquissUsageChecker
 
         private void Logout()
         {
-            var username = SettingsManager.GetSetting(SettingsManager.KeyUsername);
             _usageChecker.Dispose();
             _usageChecker = null;
 
-            Auth.ClearPassword(username);
             SetLoginPanel();
+			_statusPanelController.ResetIcon();
         }
 
         public override NSApplicationTerminateReply ApplicationShouldTerminate(NSApplication sender)

@@ -1,12 +1,19 @@
 using System;
+using System.IO;
 
+using MonoMac.Foundation;
 using MonoMac.AppKit;
+using MonoMac.CoreImage;
+
+using AquissUsageChecker.Util;
 
 namespace AquissUsageChecker.StatusPanel
 {
     public class StatusPanelController : IDisposable
     {
         public const float StatusItemViewWidth = 24.0f;
+		private const string ImagePath = "Status.png";
+		private const string HighlightImagePath = "StatusHighlighted.png";
 
         private NSStatusItem _statusItem;
         private StatusItemView _statusItemView;
@@ -18,16 +25,38 @@ namespace AquissUsageChecker.StatusPanel
         {
             _panelController = panelController;
             _statusItem = NSStatusBar.SystemStatusBar.CreateStatusItem(StatusItemViewWidth);
-            _statusItemView = new StatusItemView(_statusItem)
-            {
-                Image = NSImage.ImageNamed("Status.png"),
-                AlternateImage = NSImage.ImageNamed("StatusHighlighted.png")
-            };
+			_statusItemView = new StatusItemView(_statusItem)
+			{
+			    Image = NSImage.ImageNamed(ImagePath),
+			    AlternateImage = NSImage.ImageNamed(HighlightImagePath)
+			};
             _statusItemView.StatusItemClicked += HandleStatusItemClicked;
             _panelController.StatusItemView = _statusItemView;
+			_panelController.StatusController = this;
         }
 
         protected NSStatusItem StatusItem { get { return _statusItem; } }
+
+		public void ResetIcon()
+		{
+			_statusItemView.Image = NSImage.ImageNamed(ImagePath);
+		}
+
+		public void TintIcon(CIColor colour)
+		{
+			var statusImage = CIImage.FromUrl(NSUrl.FromFilename(NSBundle.MainBundle.PathForResource(
+				Path.GetFileNameWithoutExtension(HighlightImagePath), Path.GetExtension(HighlightImagePath))));
+			var tintImage = CIImage.ImageWithColor(colour);
+			var filter = CIFilter.FromName("CIMultiplyCompositing");
+
+			filter.SetValueForKey(tintImage, (NSString)"inputImage");
+			filter.SetValueForKey(statusImage, (NSString)"inputBackgroundImage");
+
+			var processedImage = (CIImage)filter.ValueForKey((NSString)"outputImage");
+		 	var outputImage = processedImage.ToNSImage();
+
+			_statusItemView.Image = outputImage;
+		}
 
         /// <summary>
         /// Gets or sets the panel controller.
@@ -44,9 +73,12 @@ namespace AquissUsageChecker.StatusPanel
                     return;
 
                 _panelController.ClosePanel();
+				_panelController.StatusItemView = null;
+				_panelController.StatusController = null;
 
                 _panelController = value;
                 _panelController.StatusItemView = _statusItemView;
+				_panelController.StatusController = this;
                 _panelController.OpenPanel();
             }
         }
@@ -83,7 +115,7 @@ namespace AquissUsageChecker.StatusPanel
 
             if (disposing)
             {
-                // Clear managed resourced here
+                // Clear managed resources here
             }
 
             if (_statusItem != null)

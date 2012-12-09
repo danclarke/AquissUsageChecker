@@ -15,10 +15,10 @@ namespace AquissUsageChecker
     /// </summary>
     public class UsageChecker : IDisposable
     {
-        private const string HashKey = "ylCYEAPkwtkGlohRJw7LGfvuW2MROayc";
         private const double UpdateInterval = 1000 * 60 * 30; // Every 30 minutes
 
         private readonly object _lockObject = new object();
+		private readonly string _hashCode;
 
         private UsageInformation _currentUsage;
         private Timer _autoUpdateTimer;
@@ -34,8 +34,10 @@ namespace AquissUsageChecker
             }
         }
 
-        public UsageChecker()
+        public UsageChecker(string hashCode)
         {
+			_hashCode = hashCode;
+
             SetupAutoFetch();
             UpdateUsageInformation();
         }
@@ -74,27 +76,42 @@ namespace AquissUsageChecker
             }
         }
 
+		public static void ValidateHashCode(string hashCode, Action<bool> callback)
+		{
+			AquissService.GetUsage(hashCode, (val) => callback(val.Response == "Valid"), (resp) => callback(false));
+		}
+
         public void UpdateUsageInformation()
         {
-            AquissService.GetUsage(HashKey, (val) =>
+            AquissService.GetUsage(_hashCode, (val) =>
             {
                 lock (_lockObject)
-                    _currentUsage = new UsageInformation(val);
-                OnUsageUpdated();
-            }, (resp) =>
-            {
-                using (var pool = new NSAutoreleasePool())
-                {
-                    pool.InvokeOnMainThread(() =>
+				{
+					var usage = UsageInformation.CreateUsageInformation(val);
+					if (usage != null)
+						_currentUsage = usage;
+					else
                     {
-                        var alert = NSAlert.WithMessage("Error", "OK", null, null, "Could not get usage information: " + resp.ErrorMessage);
-                        alert.AlertStyle = NSAlertStyle.Warning;
-                        alert.Icon = null;
-                        alert.RunModal();
-                    });
-                }
-            });
+                        _currentUsage = null;
+						UsageFetchError("Invalid Hash Code");
+                    }
+				}
+                OnUsageUpdated();
+            }, (resp) => UsageFetchError(resp.ErrorMessage));
         }
+
+		private void UsageFetchError(string errorMessage)
+		{
+			using (var pool = new NSAutoreleasePool())
+			{
+				pool.BeginInvokeOnMainThread(() =>
+				{
+					var alert = NSAlert.WithMessage("Error", "OK", null, null, "Could not get usage information: " + errorMessage);
+					alert.AlertStyle = NSAlertStyle.Warning;
+					alert.RunModal();
+				});
+			}
+		}
 
         #region IDisposable implementation
 
@@ -110,18 +127,23 @@ namespace AquissUsageChecker
         }
 
         #endregion
-
     }
 
-    public struct UsageInformation
+    public sealed class UsageInformation
     {
-        public UsageInformation(UsageReturnValue val)
+		public static UsageInformation CreateUsageInformation(UsageReturnValue val)
         {
-            Usage = val.UsageTotal;
-            OffPeakUsage = val.UsageOffPeak;
-            PeakUsage = val.UsagePeak;
-            StartDate = val.UsageStartDateString.ToDateTime().ToLocalTime();
-            EndDate = val.UsageEndDateString.ToDateTime().ToLocalTime();
+			if (val.Response != "Valid")
+				return null;
+
+			return new UsageInformation
+			{
+	            Usage = val.UsageTotal,
+	            OffPeakUsage = val.UsageOffPeak,
+	            PeakUsage = val.UsagePeak,
+	            StartDate = val.UsageStartDateString.ToDateTime().ToLocalTime(),
+	            EndDate = val.UsageEndDateString.ToDateTime().ToLocalTime()
+			};
         }
 
         /// <summary>

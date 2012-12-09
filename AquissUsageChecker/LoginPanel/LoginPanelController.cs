@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 
 using MonoMac.Foundation;
 using MonoMac.AppKit;
@@ -15,6 +16,11 @@ namespace AquissUsageChecker.LoginPanel
     {
         public event EventHandler<LoggedInEventArgs> LoggedIn;
         public event EventHandler QuitButtonClicked;
+
+		protected static readonly string[] UsageStrings = new[] { "3 GB", "30 GB", "60 GB", "90 GB" };
+
+		[Export("usageStrings")]
+		public string[] AllowanceUsageStrings { get { return UsageStrings; } }
 
 		#region Constructors
 		
@@ -40,45 +46,59 @@ namespace AquissUsageChecker.LoginPanel
         // Shared initialization code
         private void Initialize()
         {
-            var username = SettingsManager.GetSetting(SettingsManager.KeyUsername);
+            var hashCode = SettingsManager.GetSetting(SettingsManager.KeyHashCode);
             var usage = SettingsManager.GetSetting(SettingsManager.KeyAllowance);
 
-            if (!string.IsNullOrWhiteSpace(username))
-                UsernameField.StringValue = username;
+            if (!string.IsNullOrWhiteSpace(hashCode))
+                HashCode.StringValue = hashCode;
 
             if (!string.IsNullOrWhiteSpace(usage))
             {
                 var usageString = usage + " GB";
-                AllowanceCombo.StringValue = usageString;
+				AllowancePopup.SelectItem(((IList<string>)UsageStrings).IndexOf(usageString));
             }
         }
 		
 		#endregion
 
-        protected virtual void OnLoggedIn(string username, string password)
+        protected virtual void OnLoggedIn(string hashCode)
         {
-            string allowance;
+			var allowanceString = AllowancePopup.SelectedItem.Title;
+			var allowance = allowanceString.Substring(0, allowanceString.Length - 3);
 
-            if (AllowanceCombo.StringValue.Length > 0)
-                allowance = AllowanceCombo.StringValue.Substring(0, AllowanceCombo.StringValue.Length - 3);
-            else
-                allowance = string.Empty;
-
-            SettingsManager.SetSetting(SettingsManager.KeyUsername, username);
+            SettingsManager.SetSetting(SettingsManager.KeyHashCode, hashCode);
             SettingsManager.SetSetting(SettingsManager.KeyAllowance, allowance);
 
-            Auth.SetPassword(username, password);
-
             if (LoggedIn != null)
-                LoggedIn(this, new LoggedInEventArgs(username, password));
+                LoggedIn(this, new LoggedInEventArgs(hashCode));
         }
 
-        partial void LoginClicked(MonoMac.AppKit.NSButton sender)
+		partial void WhatIsHashCodeClicked(NSButton sender)
+		{
+			NSAlert.WithMessage("About Hash Code", "OK", null, null, "The Hash Code is available in your control panel at http://www.aquiss.net").RunModal();
+		}
+
+        partial void LoginClicked(NSButton sender)
         {
-            OnLoggedIn(UsernameField.StringValue, PasswordField.StringValue);
+			ActivityIndicator.StartAnimation(this);
+			ViewUsageButton.Enabled = false;
+			
+			UsageChecker.ValidateHashCode(HashCode.StringValue, (success) => 
+			{
+                BeginInvokeOnMainThread(() =>
+                {
+                    ActivityIndicator.StopAnimation(this);
+                    ViewUsageButton.Enabled = true;
+                    
+                    if (success)
+                        OnLoggedIn(HashCode.StringValue);
+                    else
+                        NSAlert.WithMessage("Error", "OK", null, null, "The Hash Code you entered is incorrect, please double-check the code you entered.").RunModal();
+                });
+			});
         }
 
-        partial void QuitClicked(MonoMac.AppKit.NSButton sender)
+        partial void QuitClicked(NSButton sender)
         {
             if (QuitButtonClicked != null)
                 QuitButtonClicked(this, EventArgs.Empty);
@@ -96,17 +116,14 @@ namespace AquissUsageChecker.LoginPanel
 
     public class LoggedInEventArgs : EventArgs
     {
-        private readonly string _username;
-        private readonly string _password;
+        private readonly string _hashCode;
 
-        public LoggedInEventArgs(string username, string password)
+        public LoggedInEventArgs(string hashCode)
         {
-            _username = username;
-            _password = password;
+            _hashCode = hashCode;
         }
 
-        public string Username { get { return _username; } }
-        public string Password { get { return _password; } }
+        public string Hashcode { get { return _hashCode; } }
     }
 }
 

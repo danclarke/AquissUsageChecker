@@ -74,6 +74,14 @@ namespace AquissUsageChecker.StatusPanel
         /// </summary>
         public StatusItemView StatusItemView { get; set; }
 
+		/// <summary>
+		/// The controller that's managing the status view and this controller
+		/// </summary>
+		/// <value>
+		/// The status controller.
+		/// </value>
+		public StatusPanelController StatusController { get; set; }
+
         protected virtual void HandleWindowDidResize (object sender, EventArgs e)
         {
             var statusRect = StatusRectForWindow(Window);
@@ -130,13 +138,15 @@ namespace AquissUsageChecker.StatusPanel
             if (panelRect.Right > (screenRect.Right - BackgroundView.ArrowHeight))
                 panelRect.X -= panelRect.Right - (screenRect.Right - BackgroundView.ArrowHeight);
 
-            NSApplication.SharedApplication.ActivateIgnoringOtherApps(false);
+            NSApplication.SharedApplication.ActivateIgnoringOtherApps(true);
             Window.AlphaValue = 0f;
             Window.SetFrame(statusRect, true);
             Window.MakeKeyAndOrderFront(this);
 
-            var currentEvent = NSApplication.SharedApplication.CurrentEvent;
             float openDuration = OpenDuration;
+
+#if DEBUG
+            var currentEvent = NSApplication.SharedApplication.CurrentEvent;
             if (currentEvent.Type == NSEventType.LeftMouseUp)
             {
                 var clearFlags = currentEvent.ModifierFlags & NSEventModifierMask.DeviceIndependentModifierFlagsMask;
@@ -150,6 +160,7 @@ namespace AquissUsageChecker.StatusPanel
                         Debug.WriteLine("Icon is at {0}\n\tMenu is on screen {1}\n\tWill be animated to {2}", statusRect, screenRect, panelRect);
                 }
             }
+#endif
 
             NSAnimationContext.BeginGrouping();
             NSAnimationContext.CurrentContext.Duration = openDuration;
@@ -160,6 +171,7 @@ namespace AquissUsageChecker.StatusPanel
 
             IsOpen = true;
             StatusItemView.IsHighlighted = true;
+            NSApplication.SharedApplication.ActivateIgnoringOtherApps(false);
         }
 
         /// <summary>

@@ -12,13 +12,19 @@ namespace AquissUsageChecker.LoginPanel
 	partial class LoginPanelController
 	{
 		[Outlet]
-		MonoMac.AppKit.NSTextField UsernameField { get; set; }
+		MonoMac.AppKit.NSTextField HashCode { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSSecureTextField PasswordField { get; set; }
+		MonoMac.AppKit.NSPopUpButton AllowancePopup { get; set; }
 
 		[Outlet]
-		MonoMac.AppKit.NSComboBox AllowanceCombo { get; set; }
+		MonoMac.AppKit.NSProgressIndicator ActivityIndicator { get; set; }
+
+		[Outlet]
+		MonoMac.AppKit.NSButton ViewUsageButton { get; set; }
+
+		[Action ("WhatIsHashCodeClicked:")]
+		partial void WhatIsHashCodeClicked (MonoMac.AppKit.NSButton sender);
 
 		[Action ("LoginClicked:")]
 		partial void LoginClicked (MonoMac.AppKit.NSButton sender);
@@ -28,19 +34,24 @@ namespace AquissUsageChecker.LoginPanel
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (UsernameField != null) {
-				UsernameField.Dispose ();
-				UsernameField = null;
+			if (HashCode != null) {
+				HashCode.Dispose ();
+				HashCode = null;
 			}
 
-			if (PasswordField != null) {
-				PasswordField.Dispose ();
-				PasswordField = null;
+			if (AllowancePopup != null) {
+				AllowancePopup.Dispose ();
+				AllowancePopup = null;
 			}
 
-			if (AllowanceCombo != null) {
-				AllowanceCombo.Dispose ();
-				AllowanceCombo = null;
+			if (ActivityIndicator != null) {
+				ActivityIndicator.Dispose ();
+				ActivityIndicator = null;
+			}
+
+			if (ViewUsageButton != null) {
+				ViewUsageButton.Dispose ();
+				ViewUsageButton = null;
 			}
 		}
 	}
