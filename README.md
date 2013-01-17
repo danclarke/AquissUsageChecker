@@ -3,7 +3,7 @@ Aquiss Usage Checker
 
 A simple menu bar application that displays your current broadband usage (updated every 30 minutes) if you're with the Aquiss ISP.
 
-For a detailed description see: <coming soon>
+For a detailed description see: http://dan.clarke.name/2013/01/aquiss-broadband-usage-checker-for-mac-osx/
 
 License
 ===============
