@@ -1,3 +1,21 @@
+/*
+    AquissUsageChecker - Realtime display of broadband usage on Aquiss
+    Copyright (C) 2013  Dan Clarke
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +30,18 @@ using AquissUsageChecker.Util;
 
 namespace AquissUsageChecker.LoginPanel
 {
+    /// <summary>
+    /// Controller for login panel
+    /// </summary>
     public partial class LoginPanelController : PanelController
     {
         public event EventHandler<LoggedInEventArgs> LoggedIn;
         public event EventHandler QuitButtonClicked;
 
+        // Strings used for selecting the allowance in the UI
 		protected static readonly string[] UsageStrings = new[] { "3 GB", "30 GB", "60 GB", "90 GB" };
 
+        // Export the usage strings to Interface Builder & OSX dropdown widged
 		[Export("usageStrings")]
 		public string[] AllowanceUsageStrings { get { return UsageStrings; } }
 
@@ -66,6 +89,7 @@ namespace AquissUsageChecker.LoginPanel
 			var allowanceString = AllowancePopup.SelectedItem.Title;
 			var allowance = allowanceString.Substring(0, allowanceString.Length - 3);
 
+            // Save verified valid login details
             SettingsManager.SetSetting(SettingsManager.KeyHashCode, hashCode);
             SettingsManager.SetSetting(SettingsManager.KeyAllowance, allowance);
 
@@ -83,10 +107,12 @@ namespace AquissUsageChecker.LoginPanel
 			ActivityIndicator.StartAnimation(this);
 			ViewUsageButton.Enabled = false;
 			
+            // Try and validate the hash code, in the background so we don't lock the UI
 			UsageChecker.ValidateHashCode(HashCode.StringValue, (success) => 
 			{
                 BeginInvokeOnMainThread(() =>
                 {
+                    // Update UI with what we found out
                     ActivityIndicator.StopAnimation(this);
                     ViewUsageButton.Enabled = true;
                     

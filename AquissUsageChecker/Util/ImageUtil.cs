@@ -1,12 +1,42 @@
+/*
+    AquissUsageChecker - Realtime display of broadband usage on Aquiss
+    Copyright (C) 2013  Dan Clarke
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 using System;
 using System.Drawing;
 using MonoMac.CoreImage;
 
 namespace AquissUsageChecker.Util
 {
+    /// <summary>
+    /// Image & colour manipulation methods
+    /// </summary>
 	public static class ImageUtil
 	{
-		public static CIColor TransformHSV(CIColor input, double hue, double saturation, double value)
+        /// <summary>
+        /// Transform a colour's [H]ue, [S]aturation and [V]Value
+        /// </summary>
+        /// <returns>The transformed colour</returns>
+        /// <param name="input">Colour to transform</param>
+        /// <param name="hue">Hue adjustment</param>
+        /// <param name="saturation">Saturation adjustment</param>
+        /// <param name="value">Value adjustment</param>
+        /// <remarks>Based on: http://beesbuzz.biz/code/hsv_color_transforms.php</remarks>
+		public static CIColor TransformHSV(this CIColor input, double hue, double saturation, double value)
 		{
 			double VSU = value * saturation * Math.Cos(hue * Math.PI / 180.0);
 			double VSW = value * saturation * Math.Sin(hue * Math.PI / 180.0);

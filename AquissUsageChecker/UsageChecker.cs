@@ -1,3 +1,21 @@
+/*
+    AquissUsageChecker - Realtime display of broadband usage on Aquiss
+    Copyright (C) 2013  Dan Clarke
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 using System;
 using System.Timers;
 
@@ -11,7 +29,7 @@ using AquissUsageChecker.Service.ReturnTypes;
 namespace AquissUsageChecker
 {
     /// <summary>
-    /// The actual usage checker
+    /// The actual usage checker, checks usage periodically
     /// </summary>
     public class UsageChecker : IDisposable
     {
@@ -23,6 +41,9 @@ namespace AquissUsageChecker
         private UsageInformation _currentUsage;
         private Timer _autoUpdateTimer;
 
+        /// <summary>
+        /// New usage information has been fetched from the server
+        /// </summary>
         public event EventHandler<UsageUpdatedEventArgs> UsageUpdated;
 
         public UsageInformation CurrentUsage
@@ -34,6 +55,10 @@ namespace AquissUsageChecker
             }
         }
 
+        /// <summary>
+        /// Instantiate a new usage checker
+        /// </summary>
+        /// <param name="hashCode">The user's hashcode - this is the code that uniquely identifies them</param>
         public UsageChecker(string hashCode)
         {
 			_hashCode = hashCode;
@@ -62,6 +87,9 @@ namespace AquissUsageChecker
 
         protected virtual void OnUsageUpdated()
         {
+            // Usage info comes from an async request, it could be on any thread
+            // So we need to make sure we have a release pool for ObjC code in the thread
+            // We also need to ensure we get back on the UI thread to prevent potential cross-thread issues
             using (var pool = new NSAutoreleasePool())
             {
                 pool.InvokeOnMainThread(() =>
@@ -81,6 +109,9 @@ namespace AquissUsageChecker
 			AquissService.GetUsage(hashCode, (val) => callback(val.Response == "Valid"), (resp) => callback(false));
 		}
 
+        /// <summary>
+        /// Immediately request new usage data
+        /// </summary>
         public void UpdateUsageInformation()
         {
             AquissService.GetUsage(_hashCode, (val) =>
@@ -129,6 +160,9 @@ namespace AquissUsageChecker
         #endregion
     }
 
+    /// <summary>
+    /// Detailed information about the current usage as returned by Aquiss
+    /// </summary>
     public sealed class UsageInformation
     {
 		public static UsageInformation CreateUsageInformation(UsageReturnValue val)
@@ -181,6 +215,10 @@ namespace AquissUsageChecker
             _usageInformation = usageInformation;
         }
 
+        /// <summary>
+        /// The new usage information
+        /// </summary>
+        /// <value>The usage information.</value>
         public UsageInformation UsageInformation { get { return _usageInformation; } }
     }
 }

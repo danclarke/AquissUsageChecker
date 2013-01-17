@@ -1,3 +1,21 @@
+/*
+    AquissUsageChecker - Realtime display of broadband usage on Aquiss
+    Copyright (C) 2013  Dan Clarke
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +28,9 @@ using AquissUsageChecker.Util;
 
 namespace AquissUsageChecker.UsagePanel
 {
+    /// <summary>
+    /// Controller for the usage status panel
+    /// </summary>
 	public partial class UsagePanelController : PanelController
 	{
 		private readonly double Allowance = double.Parse(SettingsManager.GetSetting(SettingsManager.KeyAllowance));
@@ -18,7 +39,7 @@ namespace AquissUsageChecker.UsagePanel
 		private const string KeyLastChecked = "lastchecked";
 		private const string KeyLastWarning = "lastwarning";
 
-		private static readonly float[] Warnings = new[] { 0.75f, 0.95f };
+		private static readonly float[] Warnings = new[] { 0.75f, 0.95f }; // Warn at 75% and 95% usage
 		private static readonly string[] WarningMessages = new[]
 		{
 			"Broadband usage is nearing the usage cap",
@@ -81,6 +102,10 @@ namespace AquissUsageChecker.UsagePanel
             NotifyUser(usageInformation);
 		}
 
+        /// <summary>
+        /// Tint the icon from green to red as the usage limit is approached
+        /// </summary>
+        /// <param name="usage">Usage as a percentage (0...1)</param>
 		private void UpdateIconTint(float usage)
 		{
 			if (StatusController == null)
@@ -96,7 +121,7 @@ namespace AquissUsageChecker.UsagePanel
 			if (usage <= 0.5f)
 			{
 				green = ColourCap;
-				red = ColourCap * usage * 2f;
+				//red = ColourCap * usage * 2f;
 				red = 0f;
 			}
 			else
@@ -111,6 +136,10 @@ namespace AquissUsageChecker.UsagePanel
 			StatusController.TintIcon(CIColor.FromRgb(red, green, 0f));
 		}
 
+        /// <summary>
+        /// Notify user if neccesary that they're approaching their usage limit
+        /// </summary>
+        /// <param name="usageInformation">Usage information.</param>
 		private void NotifyUser(UsageInformation usageInformation)
 		{
 			var usage = usageInformation.PeakUsage / (float)Allowance;

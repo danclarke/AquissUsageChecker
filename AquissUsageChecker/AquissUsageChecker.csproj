@@ -10,6 +10,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>AquissUsageChecker</RootNamespace>
     <AssemblyName>AquissUsageChecker</AssemblyName>
+    <SuppressXamMacUpsell>True</SuppressXamMacUpsell>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>
@@ -26,8 +27,9 @@
     <EnableCodeSigning>False</EnableCodeSigning>
     <CreatePackage>False</CreatePackage>
     <CodeSigningKey>Mac Developer</CodeSigningKey>
-    <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
     <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
+    <UseSGen>False</UseSGen>
+    <I18n />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>none</DebugType>
@@ -44,6 +46,8 @@
     <CodeSigningKey>Mac Developer</CodeSigningKey>
     <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
     <PackageSigningKey>3rd Party Mac Developer Installer</PackageSigningKey>
+    <I18n />
+    <UseSGen>False</UseSGen>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|x86' ">
     <DebugType>none</DebugType>
@@ -60,6 +64,7 @@
     <EnablePackageSigning>True</EnablePackageSigning>
     <CreatePackage>True</CreatePackage>
     <CodeSigningKey>3rd Party Mac Developer Application</CodeSigningKey>
+    <UseSGen>False</UseSGen>
     <CodeSignEntitlements>Entitlements.plist</CodeSignEntitlements>
   </PropertyGroup>
   <ItemGroup>

@@ -1,3 +1,21 @@
+/*
+    AquissUsageChecker - Realtime display of broadband usage on Aquiss
+    Copyright (C) 2013  Dan Clarke
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 using System;
 using System.IO;
 
@@ -9,6 +27,10 @@ using AquissUsageChecker.Util;
 
 namespace AquissUsageChecker.StatusPanel
 {
+    /// <summary>
+    /// The status icon controller (not very well named...)
+    /// </summary>
+    /// <remarks>More info can be found here: http://dan.clarke.name/2012/08/cocoa-popup-window-in-the-status-bar-monomac-port/</remarks>
     public class StatusPanelController : IDisposable
     {
         public const float StatusItemViewWidth = 24.0f;
@@ -30,7 +52,7 @@ namespace AquissUsageChecker.StatusPanel
 			    Image = NSImage.ImageNamed(ImagePath),
 			    AlternateImage = NSImage.ImageNamed(HighlightImagePath)
 			};
-            _statusItemView.StatusItemClicked += HandleStatusItemClicked;
+            _statusItemView.StatusItemClicked += OnStatusItemClicked;
             _panelController.StatusItemView = _statusItemView;
 			_panelController.StatusController = this;
         }
@@ -42,8 +64,13 @@ namespace AquissUsageChecker.StatusPanel
 			_statusItemView.Image = NSImage.ImageNamed(ImagePath);
 		}
 
+        /// <summary>
+        /// Tint the icon with the specified colour
+        /// </summary>
+        /// <param name="colour">Colour to tint icon with</param>
 		public void TintIcon(CIColor colour)
 		{
+            // Use CoreImage to tint the icon
 			var statusImage = CIImage.FromUrl(NSUrl.FromFilename(NSBundle.MainBundle.PathForResource(
 				Path.GetFileNameWithoutExtension(HighlightImagePath), Path.GetExtension(HighlightImagePath))));
 			var tintImage = CIImage.ImageWithColor(colour);
@@ -59,7 +86,7 @@ namespace AquissUsageChecker.StatusPanel
 		}
 
         /// <summary>
-        /// Gets or sets the panel controller.
+        /// Gets or sets the panel controller, this is the panel that will be displayed when the user clicks the icon
         /// </summary>
         /// <value>
         /// The panel controller.
@@ -83,7 +110,7 @@ namespace AquissUsageChecker.StatusPanel
             }
         }
 
-        protected virtual void HandleStatusItemClicked (object sender, EventArgs e)
+        protected virtual void OnStatusItemClicked(object sender, EventArgs e)
         {
             _statusItemView.IsHighlighted = !_statusItemView.IsHighlighted;
 
